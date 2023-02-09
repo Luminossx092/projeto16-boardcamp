@@ -1,0 +1,10 @@
+import { GameSchema } from "../schemas/GamesSchema.js";
+
+export function GameFormatMiddleware(req, res, next) {
+    const validation = GameSchema.validate(req.body, { abortEarly: false });
+    if (validation.error) {
+        const errors = validation.error.details.map((detail) => detail.message);
+        return res.status(400).send(errors);
+    }
+    next();
+}
