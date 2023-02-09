@@ -4,7 +4,7 @@ import { GameFormatMiddleware } from "../middlewares/GamesMiddleware.js";
 
 const router = Router();
 
-router.get('/Games',GetGames);
-router.post('/Games', AddGame);
+router.get('/games',GetGames);
+router.post('/games',GameFormatMiddleware, AddGame);
 
 export default router;
