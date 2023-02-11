@@ -3,7 +3,11 @@ import { db } from "../database/database.js";
 
 export async function ListRentals(req, res) {
     try {
-        const sql = await db.query("SELECT * FROM rentals");
+        const sql = await db.query(`SELECT r.*, 
+        json_build_object('id',c.id,'name',c.name) AS customer,
+            json_build_object('id',g.id,'name',g.name) AS game
+            FROM rentals AS r JOIN games AS g ON r."gameId" = g.id JOIN customers AS c ON r."customerId" = c.id`);
+        console.log(sql.rows)
         res.send(sql.rows)
     } catch (err) {
         return res.status(500).send(err.message);
@@ -33,12 +37,12 @@ export async function AddRental(req, res) {
         }
         const idGame = await db.query("SELECT * FROM games WHERE id=$1", [rental.gameId]);
         if (idGame.rowCount == 0) {
-            return res.status(400).send("id de Jogo não existente");
+            return res.status(400).send();
         }
         const originalPrice = (rental.daysRented) * (idGame.rows[0].pricePerDay);
-        const rentedDaysGame = await db.query(`SELECT id FROM rentals WHERE "gameId"=$1 AND "returnDate" = NULL`, [rental.gameId]);
-        if (rentedDaysGame.rowCount >= idGame.stockTotal) {
-            return res.status(400).send("Jogo não disponível");
+        const rentedDaysGame = await db.query(`SELECT id FROM rentals WHERE "gameId"=$1 AND "returnDate" IS NULL`, [rental.gameId]);
+        if (rentedDaysGame.rowCount >= idGame.rows[0].stockTotal) {
+            return res.status(400).send();
         }
         const insertRental = await db.query(`INSERT INTO rentals
         ("customerId","gameId","rentDate","daysRented","returnDate","originalPrice","delayFee") 
@@ -64,7 +68,7 @@ export async function FinishRental(req, res) {
         :rental.rows[0].originalPrice + (rental.rows[0].originalPrice/rental.rows[0].daysRented)*Math.abs(daysRented);*/
         await db.query(`UPDATE rentals set ("returnDate","delayFee") = ($1,$2) WHERE id=$3`
             , [dayjs().format('YYYY-MM-DD'), delayFee,rentalId]);
-        return res.status(201).send();
+        return res.status(200).send();
     } catch (err) {
         return res.status(500).send(err.message);
     }

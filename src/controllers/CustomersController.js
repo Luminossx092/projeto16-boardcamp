@@ -48,7 +48,7 @@ export async function UpdateCustomer(req, res) {
         if (sql.rowCount == 0) return res.status(404).send("id não existe");
         const updateCustomer = await db.query(`UPDATE customers set (name,phone,cpf,birthday) = ($1,$2,$3,$4) WHERE id=$5`
         , [customer.name, customer.phone, customer.cpf, customer.birthday,customerId]);
-        return res.status(201).send();
+        return res.status(200).send();
     } catch (err) {
         return res.status(500).send(err.message);
     }
