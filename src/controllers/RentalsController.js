@@ -60,9 +60,11 @@ export async function FinishRental(req, res) {
         const rental = await db.query(`SELECT * FROM rentals WHERE rentals.id=$1`, [rentalId]);
         if (rental.rowCount == 0) { return res.status(404).send(); }
         if (rental.rows[0].returnDate) return res.status(400).send();
-        const daysRented = dayjs().diff(rental.rows[0].rentDate,'day');
+        const daysRented = dayjs('2023-03-01').diff(rental.rows[0].rentDate,'day');
         let delayFee = 0;
-        if(daysRented<0) delayFee = (rental.rows[0].originalPrice/rental.rows[0].daysRented)*Math.abs(daysRented)
+        console.log(daysRented)
+        if(daysRented>0) delayFee = (rental.rows[0].originalPrice/rental.rows[0].daysRented)*Math.abs(daysRented);
+        console.log(delayFee);
         /*const priceRented = daysRented>=0?
         (rental.rows[0].originalPrice/rental.rows[0].daysRented)*daysRented
         :rental.rows[0].originalPrice + (rental.rows[0].originalPrice/rental.rows[0].daysRented)*Math.abs(daysRented);*/
