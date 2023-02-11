@@ -16,10 +16,7 @@ export async function AddGame(req, res) {
         if(result.rowCount > 0){
             return res.status(409).send("Jogo já existente");
         }
-        const tabelaGames = await db.query("SELECT * FROM games");
-        console.log(tabelaGames.rows)
-        const insertGame = await db.query(`INSERT INTO Games(id,name,image,"stockTotal","pricePerDay") VALUES($1,$2,$3,$4,$5)`,[tabelaGames.rowCount+1,game.name,game.image,game.stockTotal,game.pricePerDay]);
-        console.log(insertGame);
+        await db.query(`INSERT INTO Games(name,image,"stockTotal","pricePerDay") VALUES($1,$2,$3,$4)`,[game.name,game.image,game.stockTotal,game.pricePerDay]);
         return res.status(201).send();
     } catch (err) {
         return res.status(500).send(err.message);
